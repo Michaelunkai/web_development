@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Claude Hub – real-time aggregator for Claude AI, Claude Code, OpenClaw, MoltBot, ClawdBot news from Reddit, HN, GitHub, Dev.to, and more.">
+    <meta name="theme-color" content="#7c3aed">
+    <meta property="og:title" content="Claude Hub – AI Intelligence Aggregator">
+    <meta property="og:description" content="Live feed of the best Claude AI, OpenClaw, MoltBot, and ClawdBot content from Reddit, HN, GitHub, Anthropic and more.">
+    <meta property="og:type" content="website">
+    <title>Claude Hub 🦅</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..800;1,14..32,300..700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; padding: 0; background: #090910; min-height: 100vh; }
+        #root { min-height: 100vh; }
+        .init-loader {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; gap: 16px;
+        }
+        .init-orb {
+            width: 56px; height: 56px; border-radius: 18px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed, #db2777);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 8px 32px rgba(124,58,237,0.5);
+            animation: orb-spin 2s ease-in-out infinite alternate;
+        }
+        .init-text { color: rgba(255,255,255,0.35); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; }
+        @keyframes orb-spin {
+            from { box-shadow: 0 8px 32px rgba(124,58,237,0.4); transform: scale(1); }
+            to   { box-shadow: 0 8px 48px rgba(219,39,119,0.5); transform: scale(1.06); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="init-loader">
+            <div class="init-orb">🦅</div>
+            <p class="init-text">Loading Claude Hub…</p>
+        </div>
+    </div>
+</body>
+</html>
