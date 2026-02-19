@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Terminal</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #0f3460;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      color: #e94560;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header h1::before {
+      content: '>';
+      color: #00ff88;
+      font-family: monospace;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .github-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0f3460;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: 1px solid #e94560;
+    }
+
+    .github-btn:hover {
+      background: #e94560;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+    }
+
+    .github-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .auth-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      gap: 20px;
+    }
+
+    .auth-container h2 {
+      color: #e94560;
+    }
+
+    .auth-form {
+      display: flex;
+      gap: 10px;
+    }
+
+    .auth-form input {
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #0f3460;
+      background: #16213e;
+      color: #fff;
+      font-size: 1rem;
+      width: 300px;
+    }
+
+    .auth-form input:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+
+    .auth-form button {
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      background: #e94560;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .auth-form button:hover {
+      background: #ff6b6b;
+      transform: translateY(-2px);
+    }
+
+    .terminal-container {
+      flex: 1;
+      padding: 10px;
+      display: none;
+    }
+
+    #terminal {
+      height: 100%;
+      width: 100%;
+    }
+
+    .status-bar {
+      background: #16213e;
+      padding: 8px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      border-top: 1px solid #0f3460;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #888;
+    }
+
+    .status-dot.connected {
+      background: #00ff88;
+      animation: pulse 2s infinite;
+    }
+
+    .status-dot.disconnected {
+      background: #e94560;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .error-message {
+      color: #e94560;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Web Terminal</h1>
+    <a href="https://github.com/Michaelunkai/terminal" target="_blank" class="github-btn">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+      </svg>
+      View on GitHub
+    </a>
+  </div>
+
+  <div class="auth-container" id="authContainer">
+    <h2>Enter Authentication Token</h2>
+    <div class="auth-form">
+      <input type="password" id="tokenInput" placeholder="Enter your token..." autofocus>
+      <button onclick="authenticate()">Connect</button>
+    </div>
+    <div class="error-message" id="errorMessage">Invalid token. Please try again.</div>
+  </div>
+
+  <div class="terminal-container" id="terminalContainer">
+    <div id="terminal"></div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-indicator">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Disconnected</span>
+    </div>
+    <span id="connectionInfo">-</span>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.9.0/lib/xterm-addon-web-links.min.js"></script>
+  <script>
+    let ws = null;
+    let term = null;
+    let fitAddon = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    let authToken = '';
+
+    function updateStatus(connected, text) {
+      const dot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      dot.className = 'status-dot ' + (connected ? 'connected' : 'disconnected');
+      statusText.textContent = text;
+    }
+
+    function authenticate() {
+      const tokenInput = document.getElementById('tokenInput');
+      authToken = tokenInput.value.trim();
+
+      if (!authToken) {
+        showError('Please enter a token');
+        return;
+      }
+
+      connect();
+    }
+
+    function showError(message) {
+      const errorEl = document.getElementById('errorMessage');
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    function connect() {
+      hideError();
+      updateStatus(false, 'Connecting...');
+
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+        // Send authentication with terminal size
+        const cols = term ? term.cols : 80;
+        const rows = term ? term.rows : 24;
+        ws.send(JSON.stringify({ type: 'auth', token: authToken, cols, rows }));
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+
+          if (data.type === 'auth') {
+            if (data.status === 'success') {
+              reconnectAttempts = 0;
+              updateStatus(true, 'Connected');
+              document.getElementById('authContainer').style.display = 'none';
+              document.getElementById('terminalContainer').style.display = 'block';
+              document.getElementById('connectionInfo').textContent = new Date().toLocaleTimeString();
+
+              if (!term) {
+                initTerminal();
+              }
+              term.focus();
+            } else {
+              showError('Authentication failed. Invalid token.');
+              updateStatus(false, 'Auth Failed');
+              ws.close();
+            }
+            return;
+          }
+
+          if (data.type === 'output' && term) {
+            term.write(data.data);
+          }
+
+          if (data.type === 'exit') {
+            updateStatus(false, 'Process exited');
+            term.write('\r\n\x1b[31mTerminal process exited.\x1b[0m\r\n');
+          }
+
+          if (data.type === 'error') {
+            console.error('Server error:', data.message);
+          }
+        } catch (err) {
+          console.error('Error parsing message:', err);
+        }
+      };
+
+      ws.onclose = () => {
+        updateStatus(false, 'Disconnected');
+
+        if (reconnectAttempts < maxReconnectAttempts && authToken) {
+          reconnectAttempts++;
+          updateStatus(false, `Reconnecting (${reconnectAttempts}/${maxReconnectAttempts})...`);
+          setTimeout(connect, 2000);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        updateStatus(false, 'Connection error');
+      };
+    }
+
+    function initTerminal() {
+      term = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        fontFamily: 'Consolas, "Courier New", monospace',
+        theme: {
+          background: '#1a1a2e',
+          foreground: '#eee',
+          cursor: '#e94560',
+          cursorAccent: '#1a1a2e',
+          selection: 'rgba(233, 69, 96, 0.3)',
+          black: '#1a1a2e',
+          red: '#e94560',
+          green: '#00ff88',
+          yellow: '#ffd93d',
+          blue: '#6c5ce7',
+          magenta: '#a29bfe',
+          cyan: '#00cec9',
+          white: '#eee',
+          brightBlack: '#636e72',
+          brightRed: '#ff6b6b',
+          brightGreen: '#55efc4',
+          brightYellow: '#ffeaa7',
+          brightBlue: '#74b9ff',
+          brightMagenta: '#dfe6e9',
+          brightCyan: '#81ecec',
+          brightWhite: '#fff'
+        },
+        allowProposedApi: true
+      });
+
+      fitAddon = new FitAddon.FitAddon();
+      const webLinksAddon = new WebLinksAddon.WebLinksAddon();
+
+      term.loadAddon(fitAddon);
+      term.loadAddon(webLinksAddon);
+
+      term.open(document.getElementById('terminal'));
+      fitAddon.fit();
+
+      // Handle terminal input
+      term.onData((data) => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'input', data }));
+        }
+      });
+
+      // Handle resize
+      window.addEventListener('resize', () => {
+        if (fitAddon && term) {
+          fitAddon.fit();
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+          }
+        }
+      });
+
+      // Copy/paste support
+      term.attachCustomKeyEventHandler((event) => {
+        if (event.ctrlKey && event.key === 'c' && term.hasSelection()) {
+          navigator.clipboard.writeText(term.getSelection());
+          return false;
+        }
+        if (event.ctrlKey && event.key === 'v') {
+          navigator.clipboard.readText().then(text => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'input', data: text }));
+            }
+          });
+          return false;
+        }
+        return true;
+      });
+    }
+
+    // Enter key to authenticate
+    document.getElementById('tokenInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        authenticate();
+      }
+    });
+  </script>
+</body>
+</html>
